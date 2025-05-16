@@ -1,25 +1,48 @@
 <template>
-  <div class="navbar">
-    <div class="logo">Auth App</div>
-    <div class="nav-items">
+  <a-layout-header class="header">
+    <div class="logo" @click="goToHome">App</div>
+    <a-space>
       <template v-if="authStore.isAuthenticated">
-        <a-button type="link" @click="goToUserPage">Users</a-button>
-        <a-button type="primary" danger @click="handleLogout">Logout</a-button>
+        <a-button type="link" @click="goToUserPage">User Management</a-button>
+        <a-dropdown>
+          <a class="ant-dropdown-link" @click.prevent>
+            <a-avatar>{{ authStore.user?.name?.[0]?.toUpperCase() || 'U' }}</a-avatar>
+            <span class="username">{{ authStore.user?.name || 'User' }}</span>
+          </a>
+          <template #overlay>
+            <a-menu>
+              <a-menu-item key="profile">
+                <div class="profile-info">
+                  <div class="name">{{ authStore.user?.name }}</div>
+                  <div class="email">{{ authStore.user?.email }}</div>
+                </div>
+              </a-menu-item>
+              <a-menu-divider />
+              <a-menu-item key="logout" @click="handleLogout">
+                <LogoutOutlined />
+                Logout
+              </a-menu-item>
+            </a-menu>
+          </template>
+        </a-dropdown>
       </template>
       <template v-else>
         <a-button type="link" @click="goToLogin">Login</a-button>
         <a-button type="link" @click="goToRegister">Register</a-button>
       </template>
-    </div>
-  </div>
+    </a-space>
+  </a-layout-header>
 </template>
 
 <script lang="ts" setup>
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { LogoutOutlined } from '@ant-design/icons-vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
+
+console.log(authStore)
 
 const handleLogout = () => {
   authStore.clearToken()
@@ -37,33 +60,56 @@ const goToRegister = () => {
 const goToUserPage = () => {
   router.push('/user')
 }
+
+const goToHome = () => {
+  router.push('/')
+}
 </script>
 
 <style scoped>
-.navbar {
+.header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 24px;
-  height: 64px;
   background: #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
 }
 
 .logo {
   font-size: 20px;
   font-weight: bold;
   color: #1890ff;
+  cursor: pointer;
+  transition: color 0.3s;
 }
 
-.nav-items {
-  display: flex;
-  gap: 16px;
-  align-items: center;
+.logo:hover {
+  color: #40a9ff;
 }
-</style> 
+
+.ant-dropdown-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.username {
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.profile-info {
+  padding: 4px 0;
+}
+
+.profile-info .name {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.profile-info .email {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+}
+</style>

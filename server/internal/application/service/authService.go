@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"log"
+	"main/internal/domain/dto"
 	"main/internal/domain/model"
 	"main/internal/domain/port"
 	"os"
@@ -47,19 +48,19 @@ func (service *AuthService) Register(entry model.User) error {
 	return nil
 }
 
-func (service *AuthService) Login(entry model.User) (string, error) {
+func (service *AuthService) Login(entry model.User) (dto.UserDTO, string, error) {
 	user, err := service.Port.GetByEmail(entry.Email)
 
 	if (user == model.User{}) {
 		log.Println("ERROR USER NOT FOUND")
-		return "", fmt.Errorf("ERROR USER NOT FOUND")
+		return dto.UserDTO{}, "", fmt.Errorf("ERROR USER NOT FOUND")
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(entry.Password))
 
 	if err != nil {
 		log.Println("ERROR PASSWORD NOT MATCH")
-		return "", fmt.Errorf("ERROR PASSWORD NOT MATCH")
+		return dto.UserDTO{}, "", fmt.Errorf("ERROR PASSWORD NOT MATCH")
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -71,8 +72,13 @@ func (service *AuthService) Login(entry model.User) (string, error) {
 
 	if err != nil {
 		log.Println(err)
-		return "", err
+		return dto.UserDTO{}, "", err
 	}
 
-	return tokenString, nil
+	userData := dto.UserDTO{
+		Name:  user.Name,
+		Email: user.Email,
+	}
+
+	return userData, tokenString, nil
 }

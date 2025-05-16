@@ -1,34 +1,36 @@
 <template>
-  <a-modal :open="visible" title="User Details" @ok="handleOk" @cancel="handleCancel">
-    <template v-if="user">
-      <p><strong>Id:</strong> {{ user.id }}</p>
-      <p><strong>Name:</strong> {{ user.name }}</p>
-      <p><strong>Email:</strong> {{ user.email }}</p>
-      <p><strong>Password:</strong> {{ user.password }}</p>
-      <p><strong>Created At:</strong> {{ user.created_at }}</p>
-      <p><strong>Updated At:</strong> {{ user.updated_at }}</p>
-    </template>
+  <a-modal :visible="visible" title="User Details" @cancel="handleCancel" :footer="null">
+    <a-descriptions bordered>
+      <a-descriptions-item label="Name" :span="3">
+        {{ user?.name }}
+      </a-descriptions-item>
+      <a-descriptions-item label="Email" :span="3">
+        {{ user?.email }}
+      </a-descriptions-item>
+      <a-descriptions-item label="Password" :span="3">
+        {{ user?.password }}
+      </a-descriptions-item>
+      <a-descriptions-item label="Created At" :span="3">
+        {{ user?.created_at }}
+      </a-descriptions-item>
+      <a-descriptions-item label="Updated At" :span="3">
+        {{ user?.updated_at }}
+      </a-descriptions-item>
+    </a-descriptions>
   </a-modal>
 </template>
 
 <script lang="ts" setup>
 import type { User } from '@/stores/user'
 
-interface Props {
+const props = defineProps<{
   visible: boolean
   user: User | null
-}
+}>()
 
-interface Emits {
+const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
-}
-
-const props = defineProps<Props>()
-const emit = defineEmits<Emits>()
-
-const handleOk = () => {
-  emit('update:visible', false)
-}
+}>()
 
 const handleCancel = () => {
   emit('update:visible', false)

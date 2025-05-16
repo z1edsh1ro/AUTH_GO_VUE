@@ -1,45 +1,44 @@
 <template>
-  <div class="page-container">
+  <a-layout>
     <Navbar />
-    <div class="content">
-      <div class="login-container">
-        <h1>Login</h1>
-        <a-form
-          :model="formState"
-          name="login"
-          @finish="handleSubmit"
-          :rules="rules"
-        >
-          <a-form-item name="email" label="Email">
-            <a-input v-model:value="formState.email" />
-          </a-form-item>
+    <a-layout-content>
+      <a-row justify="center" class="container">
+        <a-col :lg="8">
+          <a-card title="Login">
+            <a-form
+              :model="formState"
+              name="login"
+              @finish="handleSubmit"
+              :rules="rules"
+              layout="vertical"
+            >
+              <a-form-item name="email" label="Email">
+                <a-input
+                  :value="formState.email"
+                  @update:value="(val: string) => (formState.email = val)"
+                />
+              </a-form-item>
 
-          <a-form-item name="password" label="Password">
-            <a-input-password v-model:value="formState.password" />
-          </a-form-item>
+              <a-form-item name="password" label="Password">
+                <a-input-password
+                  :value="formState.password"
+                  @update:value="(val: string) => (formState.password = val)"
+                />
+              </a-form-item>
 
-          <a-form-item>
-            <a-button type="primary" html-type="submit" :loading="loading" block>
-              Login
-            </a-button>
-          </a-form-item>
+              <a-form-item>
+                <a-button type="primary" html-type="submit" :loading="loading" block>
+                  Login
+                </a-button>
+              </a-form-item>
+            </a-form>
 
-          <div class="form-footer">
-            <span>Don't have an account?</span>
-            <a-button type="link" @click="goToRegister">Register</a-button>
-          </div>
-        </a-form>
-
-        <a-alert
-          v-if="error"
-          type="error"
-          :message="error"
-          show-icon
-          class="error-alert"
-        />
-      </div>
-    </div>
-  </div>
+            <a-alert v-if="error" type="error" :message="error" show-icon banner />
+          </a-card>
+        </a-col>
+      </a-row>
+    </a-layout-content>
+  </a-layout>
 </template>
 
 <script lang="ts" setup>
@@ -60,18 +59,18 @@ const error = ref<string | null>(null)
 
 const formState = reactive<FormState>({
   email: '',
-  password: ''
+  password: '',
 })
 
 const rules = {
   email: [
     { required: true, message: 'Please input your email!' },
-    { type: 'email', message: 'Please enter a valid email!' }
+    { type: 'email', message: 'Please enter a valid email!' },
   ],
   password: [
     { required: true, message: 'Please input your password!' },
-    { min: 6, message: 'Password must be at least 6 characters!' }
-  ]
+    { min: 6, message: 'Password must be at least 6 characters!' },
+  ],
 }
 
 const handleSubmit = async (values: FormState) => {
@@ -93,65 +92,23 @@ const handleSubmit = async (values: FormState) => {
       throw new Error(data.message || 'Login failed')
     }
 
-    // Set the token in the auth store
-    authStore.setToken(data.token)
-    
-    // Redirect to user page
-    router.push('/user')
+    authStore.setToken(data.jwt)
+    if (data.data) {
+      authStore.setUser(data.data)
+    }
+
+    router.push('/')
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Login failed'
   } finally {
     loading.value = false
   }
 }
-
-const goToRegister = () => {
-  router.push('/register')
-}
 </script>
 
 <style scoped>
-.page-container {
-  min-height: 100vh;
-  background: #f0f2f5;
-}
-
-.content {
-  padding: 24px;
-  margin-top: 64px;
+.container {
   min-height: calc(100vh - 64px);
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-}
-
-.login-container {
-  width: 100%;
-  max-width: 400px;
-  padding: 40px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-.login-container h1 {
-  text-align: center;
-  color: #1890ff;
-  margin-bottom: 32px;
-}
-
-.form-footer {
-  text-align: center;
-  margin-top: 16px;
-}
-
-.error-alert {
-  margin-top: 16px;
-}
-
-@media (max-width: 768px) {
-  .login-container {
-    padding: 24px;
-  }
+  padding: 24px;
 }
 </style>

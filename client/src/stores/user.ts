@@ -22,14 +22,13 @@ export const useUserStore = defineStore('user', () => {
     error.value = null
 
     try {
-      const endPoint = `http://localhost:8080/api/auth/user/getAll`
-      const myHeaders = new Headers()
       const token = authStore.getToken()
-
       if (!token) {
         throw new Error('No authentication token found')
       }
 
+      const endPoint = `http://localhost:8080/api/auth/user/getAll`
+      const myHeaders = new Headers()
       myHeaders.append('Authorization', `Bearer ${token}`)
 
       const requestOptions = {

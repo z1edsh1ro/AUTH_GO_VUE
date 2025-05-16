@@ -1,195 +1,142 @@
 <template>
-  <div>
+  <a-layout>
     <Navbar />
-    <div class="register-container">
-      <div class="register-box">
-        <h2>Register</h2>
-        <form @submit.prevent="handleRegister" class="register-form">
-          <div class="form-group">
-            <label for="name">Full Name</label>
-            <input
-              type="text"
-              id="name"
-              v-model="name"
-              required
-              placeholder="Enter your full name"
-            />
-          </div>
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              v-model="email"
-              required
-              placeholder="Enter your email"
-            />
-          </div>
-          <div class="form-group">
-            <label for="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              v-model="password"
-              required
-              placeholder="Enter your password"
-            />
-          </div>
-          <div class="form-group">
-            <label for="confirmPassword">Confirm Password</label>
-            <input
-              type="password"
-              id="confirmPassword"
-              v-model="confirmPassword"
-              required
-              placeholder="Confirm your password"
-            />
-          </div>
-          <button type="submit" class="register-button">Register</button>
-        </form>
-        <p class="login-link">
-          Already have an account? <router-link to="/login">Login here</router-link>
-        </p>
-      </div>
-    </div>
-  </div>
+    <a-layout-content>
+      <a-row justify="center" class="container">
+        <a-col :lg="8">
+          <a-card title="Register" :bordered="false">
+            <a-form
+              :model="formState"
+              name="register"
+              @finish="handleSubmit"
+              :rules="rules"
+              layout="vertical"
+            >
+              <a-form-item name="name" label="Name">
+                <a-input v-model:value="formState.name" />
+              </a-form-item>
+
+              <a-form-item name="email" label="Email">
+                <a-input v-model:value="formState.email" />
+              </a-form-item>
+
+              <a-form-item name="password" label="Password">
+                <a-input-password v-model:value="formState.password" />
+              </a-form-item>
+
+              <a-form-item name="confirmPassword" label="Confirm Password">
+                <a-input-password v-model:value="formState.confirmPassword" />
+              </a-form-item>
+
+              <a-form-item>
+                <a-button type="primary" html-type="submit" :loading="loading" block>
+                  Register
+                </a-button>
+              </a-form-item>
+
+              <a-form-item>
+                <a-space>
+                  <span>Already have an account?</span>
+                  <a-button type="link" @click="goToLogin">Login</a-button>
+                </a-space>
+              </a-form-item>
+            </a-form>
+
+            <a-alert v-if="error" type="error" :message="error" show-icon banner />
+          </a-card>
+        </a-col>
+      </a-row>
+    </a-layout-content>
+  </a-layout>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue'
+<script lang="ts" setup>
+import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import Navbar from '@/components/Navbar.vue'
 
+interface FormState {
+  name: string
+  email: string
+  password: string
+  confirmPassword: string
+}
+
 const router = useRouter()
-const name = ref('')
-const email = ref('')
-const password = ref('')
-const confirmPassword = ref('')
+const loading = ref(false)
+const error = ref<string | null>(null)
 
-const handleRegister = async () => {
-  if (password.value !== confirmPassword.value) {
-    alert('Passwords do not match!')
-    return
+const formState = reactive<FormState>({
+  name: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+})
+
+const validateConfirmPassword = async (_rule: any, value: string) => {
+  if (value !== formState.password) {
+    throw new Error('The two passwords do not match!')
   }
+}
 
-  const endPoint = `http://127.0.0.1:8080/api/auth/register`
-  const myHeaders = new Headers()
-  myHeaders.append('Content-Type', 'application/json')
+const rules = {
+  name: [
+    { required: true, message: 'Please input your name!' },
+    { min: 2, message: 'Name must be at least 2 characters!' },
+  ],
+  email: [
+    { required: true, message: 'Please input your email!' },
+    { type: 'email', message: 'Please enter a valid email!' },
+  ],
+  password: [
+    { required: true, message: 'Please input your password!' },
+    { min: 6, message: 'Password must be at least 6 characters!' },
+  ],
+  confirmPassword: [
+    { required: true, message: 'Please confirm your password!' },
+    { validator: validateConfirmPassword },
+  ],
+}
 
-  const payload = JSON.stringify({
-    email: email.value,
-    name: name.value,
-    password: password.value,
-  })
-
-  const requestOptions: RequestInit = {
-    method: 'POST',
-    headers: myHeaders,
-    body: payload,
-  }
+const handleSubmit = async (values: FormState) => {
+  loading.value = true
+  error.value = null
 
   try {
-    const response = await fetch(endPoint, requestOptions)
+    const response = await fetch('http://localhost:8080/api/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      }),
+    })
+
+    const data = await response.json()
 
     if (!response.ok) {
-      throw new Error(`Cannot register`)
+      throw new Error(data.message || 'Registration failed')
     }
 
-    const responseJson = await response.json()
-
-    console.log('Response: ', responseJson)
-
-    alert(responseJson.status)
-
-    // After successful registration, redirect to login page
     router.push('/login')
-  } catch (error) {
-    console.error('Registration failed:', error)
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Registration failed'
+  } finally {
+    loading.value = false
   }
+}
+
+const goToLogin = () => {
+  router.push('/login')
 }
 </script>
 
 <style scoped>
-.register-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: #f5f5f5;
-  padding-top: 4rem; /* Add padding to account for fixed navbar */
-}
-
-.register-box {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
-}
-
-h2 {
-  text-align: center;
-  color: #333;
-  margin-bottom: 1.5rem;
-}
-
-.register-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-label {
-  font-weight: 500;
-  color: #555;
-}
-
-input {
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-
-input:focus {
-  outline: none;
-  border-color: #4caf50;
-}
-
-.register-button {
-  background-color: #4caf50;
-  color: white;
-  padding: 0.75rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.register-button:hover {
-  background-color: #45a049;
-}
-
-.login-link {
-  text-align: center;
-  margin-top: 1rem;
-  color: #666;
-}
-
-.login-link a {
-  color: #4caf50;
-  text-decoration: none;
-}
-
-.login-link a:hover {
-  text-decoration: underline;
+.container {
+  min-height: calc(100vh - 64px);
+  padding: 24px;
 }
 </style>

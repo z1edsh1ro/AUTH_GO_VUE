@@ -1,31 +1,43 @@
 <template>
-  <div class="page-container">
+  <a-layout>
     <Navbar />
-    <div class="content">
-      <a-spin :spinning="userStore.loading">
-        <a-table :columns="columns" :data-source="userStore.users">
-          <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'operation'">
-              <a @click="showModal(record)">View Details</a>
+    <a-layout-content>
+      <a-row>
+        <a-col :span="24">
+          <a-card :bordered="false">
+            <template #title>
+              <a-space>
+                <span>User Management</span>
+                <a-spin v-if="userStore.loading" size="small" />
+              </a-space>
             </template>
-          </template>
-        </a-table>
-      </a-spin>
+
+            <a-table :columns="columns" :data-source="userStore.users" :loading="userStore.loading">
+              <template #bodyCell="{ column, record }">
+                <template v-if="column.key === 'operation'">
+                  <a @click="showModal(record)"><EyeOutlined /></a>
+                </template>
+              </template>
+            </a-table>
+
+            <a-alert
+              v-if="userStore.error"
+              type="error"
+              :message="userStore.error"
+              show-icon
+              banner
+            />
+          </a-card>
+        </a-col>
+      </a-row>
 
       <UserDetailsModal
         :visible="isModalVisible"
         @update:visible="isModalVisible = $event"
         :user="selectedUser"
       />
-
-      <a-alert
-        v-if="userStore.error"
-        type="error"
-        :message="userStore.error"
-        show-icon
-      />
-    </div>
-  </div>
+    </a-layout-content>
+  </a-layout>
 </template>
 
 <script lang="ts" setup>
@@ -37,6 +49,7 @@ import { useAuthStore } from '@/stores/auth'
 import type { User } from '@/stores/user'
 import UserDetailsModal from '@/components/UserDetailsModal.vue'
 import Navbar from '@/components/Navbar.vue'
+import EyeOutlined from '@ant-design/icons-vue/EyeOutlined'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -47,6 +60,11 @@ const selectedUser = ref<User | null>(null)
 // Column definitions
 const columns = ref<TableColumnsType<User>>([
   {
+    title: 'Id',
+    dataIndex: 'id',
+    key: 'id',
+  },
+  {
     title: 'Name',
     dataIndex: 'name',
     key: 'name',
@@ -55,21 +73,6 @@ const columns = ref<TableColumnsType<User>>([
     title: 'Email',
     dataIndex: 'email',
     key: 'email',
-  },
-  {
-    title: 'Password',
-    dataIndex: 'password',
-    key: 'password',
-  },
-  {
-    title: 'createdAt',
-    dataIndex: 'created_at',
-    key: 'created_at',
-  },
-  {
-    title: 'updatedAt',
-    dataIndex: 'updated_at',
-    key: 'updated_at',
   },
   {
     title: 'Action',
@@ -92,15 +95,8 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.page-container {
-  min-height: 100vh;
-  background: #f0f2f5;
-}
-
-.content {
+.ant-layout-content {
   padding: 24px;
-  margin-top: 64px;
   min-height: calc(100vh - 64px);
-  background: #fff;
 }
 </style>
