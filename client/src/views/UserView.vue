@@ -11,7 +11,7 @@
               </a-space>
             </template>
 
-            <a-table :columns="columns" :data-source="userStore.users" :loading="userStore.loading">
+            <a-table :columns="columns" :data-source="userStore.users">
               <template #bodyCell="{ column, record }">
                 <template v-if="column.key === 'operation'">
                   <a @click="showModal(record)"><EyeOutlined /></a>

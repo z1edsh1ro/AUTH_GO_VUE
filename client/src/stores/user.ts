@@ -13,12 +13,10 @@ export interface User {
 
 export const useUserStore = defineStore('user', () => {
   const users = ref<User[]>([])
-  const loading = ref(false)
   const error = ref<string | null>(null)
   const authStore = useAuthStore()
 
   const fetchUsers = async () => {
-    loading.value = true
     error.value = null
 
     try {
@@ -51,14 +49,11 @@ export const useUserStore = defineStore('user', () => {
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'An error occurred'
       console.error('Failed to fetch users:', err)
-    } finally {
-      loading.value = false
     }
   }
 
   return {
     users,
-    loading,
     error,
     fetchUsers,
   }

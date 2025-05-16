@@ -112,6 +112,7 @@ const handleSubmit = async (values: FormState) => {
       throw new Error(data.message || 'Registration failed')
     }
 
+    alert('Register success')
     router.push('/login')
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Registration failed'
