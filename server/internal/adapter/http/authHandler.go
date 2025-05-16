@@ -2,7 +2,7 @@ package http
 
 import (
 	"main/internal/application/service"
-	"main/internal/domain/model"
+	"main/internal/domain/dto"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -17,7 +17,7 @@ func NewAuthHandler(service service.AuthService) *AuthHandler {
 }
 
 func (handler *AuthHandler) Register(context *gin.Context) {
-	var user model.User
+	var user dto.RegisterRequestDTO
 
 	err := context.ShouldBindJSON(&user)
 
@@ -46,7 +46,7 @@ func (handler *AuthHandler) Register(context *gin.Context) {
 }
 
 func (handler *AuthHandler) Login(context *gin.Context) {
-	var user model.User
+	var user dto.LoginRequestDTO
 
 	err := context.ShouldBindJSON(&user)
 
@@ -58,7 +58,7 @@ func (handler *AuthHandler) Login(context *gin.Context) {
 		return
 	}
 
-	userDto, jwt, err := handler.Service.Login(user)
+	UserResponseDTO, jwt, err := handler.Service.Login(user)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{
@@ -71,6 +71,6 @@ func (handler *AuthHandler) Login(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{
 		"status": "SUCCESS",
 		"jwt":    jwt,
-		"data":   userDto,
+		"data":   UserResponseDTO,
 	})
 }

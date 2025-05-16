@@ -26,7 +26,7 @@
 <script lang="ts" setup>
 import type { User } from '@/stores/user'
 
-const props = defineProps<{
+const { visible, user } = defineProps<{
   visible: boolean
   user: User | null
 }>()

@@ -30,11 +30,7 @@
         </a-col>
       </a-row>
 
-      <UserDetailsModal
-        :visible="isModalVisible"
-        @update:visible="isModalVisible = $event"
-        :user="selectedUser"
-      />
+      <UserDetailsModal v-model:visible="isModalVisible" :user="selectedUser" />
     </a-layout-content>
   </a-layout>
 </template>
@@ -83,12 +79,12 @@ const showModal = (record: User) => {
   isModalVisible.value = true
 }
 
-onMounted(() => {
+onMounted(async () => {
   if (!authStore.isAuthenticated) {
     router.push('/login')
     return
   }
-  userStore.fetchUsers()
+  await userStore.fetchUsers()
 })
 </script>
 

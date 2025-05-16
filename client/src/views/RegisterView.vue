@@ -81,6 +81,7 @@ const rules = {
   email: [
     { required: true, message: 'Please input your email!' },
     { type: 'email', message: 'Please enter a valid email!' },
+    { min: 6, message: 'Email must be at least 6 characters!' },
   ],
   password: [
     { required: true, message: 'Please input your password!' },

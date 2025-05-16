@@ -17,7 +17,7 @@ type AuthService struct {
 	Port port.UserRepositoryInterface
 }
 
-func (service *AuthService) Register(entry model.User) error {
+func (service *AuthService) Register(entry dto.RegisterRequestDTO) error {
 	user, err := service.Port.GetByEmail(entry.Email)
 
 	if (user != model.User{}) {
@@ -48,19 +48,19 @@ func (service *AuthService) Register(entry model.User) error {
 	return nil
 }
 
-func (service *AuthService) Login(entry model.User) (dto.UserDTO, string, error) {
+func (service *AuthService) Login(entry dto.LoginRequestDTO) (dto.UserResponseDTO, string, error) {
 	user, err := service.Port.GetByEmail(entry.Email)
 
 	if (user == model.User{}) {
 		log.Println("ERROR USER NOT FOUND")
-		return dto.UserDTO{}, "", fmt.Errorf("ERROR USER NOT FOUND")
+		return dto.UserResponseDTO{}, "", fmt.Errorf("ERROR USER NOT FOUND")
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(entry.Password))
 
 	if err != nil {
 		log.Println("ERROR PASSWORD WRONG")
-		return dto.UserDTO{}, "", fmt.Errorf("ERROR PASSWORD WRONG")
+		return dto.UserResponseDTO{}, "", fmt.Errorf("ERROR PASSWORD WRONG")
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -72,10 +72,10 @@ func (service *AuthService) Login(entry model.User) (dto.UserDTO, string, error)
 
 	if err != nil {
 		log.Println(err)
-		return dto.UserDTO{}, "", err
+		return dto.UserResponseDTO{}, "", err
 	}
 
-	userData := dto.UserDTO{
+	userData := dto.UserResponseDTO{
 		Name:  user.Name,
 		Email: user.Email,
 	}
