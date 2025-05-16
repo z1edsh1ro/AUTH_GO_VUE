@@ -4,7 +4,10 @@ import (
 	"main/internal/adapter/http"
 	"main/internal/adapter/repository"
 	"main/internal/application/service"
+	"main/internal/middleware"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -19,15 +22,28 @@ func New(mongoClient *mongo.Client) *gin.Engine {
 	authHandler := http.NewAuthHandler(authService)
 	userHandler := http.NewUserHandler(userService)
 
-	apiAuth := r.Group("/api/auth")
-	{
-		apiAuth.POST("/register", authHandler.Register)
-		apiAuth.POST("/login", authHandler.Login)
+	corsConfig := cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
 	}
 
-	apiAuthUser := r.Group("/api/auth/user")
+	api := r.Group("/api")
+	api.Use(cors.New(corsConfig))
+
+	auth := api.Group("/auth")
 	{
-		apiAuthUser.GET("/", userHandler.GetAllUser)
+		auth.POST("/register", authHandler.Register)
+		auth.POST("/login", authHandler.Login)
+	}
+
+	authUser := auth.Group("/user")
+	authUser.Use(middleware.AuthMiddleware())
+	{
+		authUser.GET("/", userHandler.GetAllUser)
 	}
 
 	return r
