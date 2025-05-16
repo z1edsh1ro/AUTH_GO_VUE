@@ -1,7 +1,31 @@
 package main
 
-import "fmt"
+import (
+	"context"
+	"log"
+	"main/internal/infrastructure/db"
+	"main/internal/router"
+	"time"
+)
 
 func main() {
-	fmt.Print("test")
+	mongoClient, err := db.Connection()
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	context, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	defer func() {
+		err = mongoClient.Disconnect(context)
+
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	r := router.New(mongoClient)
+	r.Run()
 }
