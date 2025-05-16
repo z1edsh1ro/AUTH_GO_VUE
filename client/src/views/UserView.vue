@@ -4,11 +4,10 @@
     <a-layout-content>
       <a-row>
         <a-col :span="24">
-          <a-card :bordered="false">
+          <a-card>
             <template #title>
               <a-space>
                 <span>User Management</span>
-                <a-spin v-if="userStore.loading" size="small" />
               </a-space>
             </template>
 
@@ -57,7 +56,6 @@ const authStore = useAuthStore()
 const isModalVisible = ref(false)
 const selectedUser = ref<User | null>(null)
 
-// Column definitions
 const columns = ref<TableColumnsType<User>>([
   {
     title: 'Id',

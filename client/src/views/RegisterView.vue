@@ -47,6 +47,7 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import Navbar from '@/components/Navbar.vue'
+import type { Rule } from 'ant-design-vue/es/form'
 
 interface FormState {
   name: string
@@ -66,7 +67,7 @@ const formState = reactive<FormState>({
   confirmPassword: '',
 })
 
-const validateConfirmPassword = async (_rule: any, value: string) => {
+const validateConfirmPassword = async (_rule: Rule, value: string) => {
   if (value !== formState.password) {
     throw new Error('The two passwords do not match!')
   }
