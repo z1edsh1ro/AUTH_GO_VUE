@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -13,7 +12,6 @@ import (
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		log.Printf("test")
 		header := context.Request.Header.Get("Authorization")
 
 		tokenString := strings.SplitAfter(header, " ")

@@ -23,16 +23,16 @@ func New(mongoClient *mongo.Client) *gin.Engine {
 	userHandler := http.NewUserHandler(userService)
 
 	corsConfig := cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
-		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
+		AllowOrigins:  []string{"http://localhost:5173"},
+		AllowMethods:  []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders:  []string{"Origin", "Authorization", "Content-Type"},
+		ExposeHeaders: []string{"Content-Length"},
+		MaxAge:        12 * time.Hour,
 	}
 
+	r.Use(cors.New(corsConfig))
+
 	api := r.Group("/api")
-	api.Use(cors.New(corsConfig))
 
 	auth := api.Group("/auth")
 	{
@@ -43,7 +43,7 @@ func New(mongoClient *mongo.Client) *gin.Engine {
 	authUser := auth.Group("/user")
 	authUser.Use(middleware.AuthMiddleware())
 	{
-		authUser.GET("/", userHandler.GetAllUser)
+		authUser.GET("/getAll", userHandler.GetAllUser)
 	}
 
 	return r

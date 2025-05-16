@@ -67,19 +67,42 @@ const password = ref('')
 const confirmPassword = ref('')
 
 const handleRegister = async () => {
+  if (password.value !== confirmPassword.value) {
+    alert('Passwords do not match!')
+    return
+  }
+
+  const endPoint = `http://127.0.0.1:8080/api/auth/register`
+  const myHeaders = new Headers()
+  myHeaders.append('Content-Type', 'application/json')
+
+  const payload = JSON.stringify({
+    email: email.value,
+    name: name.value,
+    password: password.value,
+  })
+
+  const requestOptions: RequestInit = {
+    method: 'POST',
+    headers: myHeaders,
+    body: payload,
+  }
+
   try {
-    if (password.value !== confirmPassword.value) {
-      alert('Passwords do not match!')
-      return
+    const response = await fetch(endPoint, requestOptions)
+
+    if (!response.ok) {
+      throw new Error(`Cannot register`)
     }
-    // TODO: Implement registration logic here
-    console.log('Registration attempt with:', {
-      name: name.value,
-      email: email.value,
-      password: password.value
-    })
+
+    const responseJson = await response.json()
+
+    console.log('Response: ', responseJson)
+
+    alert(responseJson.status)
+
     // After successful registration, redirect to login page
-    // router.push('/login')
+    router.push('/login')
   } catch (error) {
     console.error('Registration failed:', error)
   }
@@ -137,11 +160,11 @@ input {
 
 input:focus {
   outline: none;
-  border-color: #4CAF50;
+  border-color: #4caf50;
 }
 
 .register-button {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   padding: 0.75rem;
   border: none;
@@ -162,11 +185,11 @@ input:focus {
 }
 
 .login-link a {
-  color: #4CAF50;
+  color: #4caf50;
   text-decoration: none;
 }
 
 .login-link a:hover {
   text-decoration: underline;
 }
-</style> 
+</style>
