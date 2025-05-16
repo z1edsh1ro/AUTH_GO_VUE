@@ -27,9 +27,7 @@
               </a-form-item>
 
               <a-form-item>
-                <a-button type="primary" html-type="submit" :loading="loading" block>
-                  Login
-                </a-button>
+                <a-button type="primary" html-type="submit" block> Login </a-button>
               </a-form-item>
             </a-form>
 
@@ -54,7 +52,6 @@ interface FormState {
 
 const router = useRouter()
 const authStore = useAuthStore()
-const loading = ref(false)
 const error = ref<string | null>(null)
 
 const formState = reactive<FormState>({
@@ -75,7 +72,6 @@ const rules = {
 }
 
 const handleSubmit = async (values: FormState) => {
-  loading.value = true
   error.value = null
 
   try {
@@ -101,8 +97,6 @@ const handleSubmit = async (values: FormState) => {
     router.push('/')
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Login failed'
-  } finally {
-    loading.value = false
   }
 }
 </script>

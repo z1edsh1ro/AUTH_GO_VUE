@@ -29,9 +29,7 @@
               </a-form-item>
 
               <a-form-item>
-                <a-button type="primary" html-type="submit" :loading="loading" block>
-                  Register
-                </a-button>
+                <a-button type="primary" html-type="submit" block> Register </a-button>
               </a-form-item>
             </a-form>
 
@@ -57,7 +55,6 @@ interface FormState {
 }
 
 const router = useRouter()
-const loading = ref(false)
 const error = ref<string | null>(null)
 
 const formState = reactive<FormState>({
@@ -94,7 +91,6 @@ const rules = {
 }
 
 const handleSubmit = async (values: FormState) => {
-  loading.value = true
   error.value = null
 
   try {
@@ -119,8 +115,6 @@ const handleSubmit = async (values: FormState) => {
     router.push('/login')
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Registration failed'
-  } finally {
-    loading.value = false
   }
 }
 </script>
