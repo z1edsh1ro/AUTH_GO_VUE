@@ -42,8 +42,6 @@ import { LogoutOutlined } from '@ant-design/icons-vue'
 const router = useRouter()
 const authStore = useAuthStore()
 
-console.log(authStore)
-
 const handleLogout = () => {
   authStore.clearToken()
   router.push('/login')
