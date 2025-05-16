@@ -33,13 +33,6 @@
                   Register
                 </a-button>
               </a-form-item>
-
-              <a-form-item>
-                <a-space>
-                  <span>Already have an account?</span>
-                  <a-button type="link" @click="goToLogin">Login</a-button>
-                </a-space>
-              </a-form-item>
             </a-form>
 
             <a-alert v-if="error" type="error" :message="error" show-icon banner />
@@ -127,10 +120,6 @@ const handleSubmit = async (values: FormState) => {
   } finally {
     loading.value = false
   }
-}
-
-const goToLogin = () => {
-  router.push('/login')
 }
 </script>
 
