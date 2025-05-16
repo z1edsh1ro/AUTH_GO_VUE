@@ -1,5 +1,5 @@
 <template>
-  <a-modal :visible="visible" title="User Details" @cancel="handleCancel" :footer="null">
+  <a-modal :open="visible" title="User Details" @cancel="handleCancel" :footer="null">
     <a-descriptions bordered>
       <a-descriptions-item label="Id" :span="3">
         {{ user?.id }}

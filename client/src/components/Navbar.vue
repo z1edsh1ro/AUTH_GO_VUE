@@ -6,8 +6,8 @@
         <a-button type="link" @click="goToUserPage">User Management</a-button>
         <a-dropdown>
           <a class="ant-dropdown-link" @click.prevent>
-            <a-avatar>{{ authStore.user?.name?.[0]?.toUpperCase() || 'U' }}</a-avatar>
-            <span class="username">{{ authStore.user?.name || 'User' }}</span>
+            <a-avatar>{{ authStore.user?.name?.[0]?.toUpperCase() }}</a-avatar>
+            <span class="username">{{ authStore.user?.name }}</span>
           </a>
           <template #overlay>
             <a-menu>

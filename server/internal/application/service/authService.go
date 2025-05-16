@@ -59,8 +59,8 @@ func (service *AuthService) Login(entry model.User) (dto.UserDTO, string, error)
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(entry.Password))
 
 	if err != nil {
-		log.Println("ERROR PASSWORD NOT MATCH")
-		return dto.UserDTO{}, "", fmt.Errorf("ERROR PASSWORD NOT MATCH")
+		log.Println("ERROR PASSWORD WRONG")
+		return dto.UserDTO{}, "", fmt.Errorf("ERROR PASSWORD WRONG")
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
