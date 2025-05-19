@@ -72,10 +72,6 @@ const showModal = (record: User) => {
 }
 
 onMounted(() => {
-  if (!authStore.loadJwt) {
-    router.push('/login')
-    return
-  }
   userStore.getUsers()
 })
 </script>
