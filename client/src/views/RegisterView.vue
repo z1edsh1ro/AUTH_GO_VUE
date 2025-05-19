@@ -2,30 +2,30 @@
   <a-layout>
     <Navbar />
     <a-layout-content>
-      <a-row justify="center" class="container">
+      <div class="flex justify-center mx-auto items-center px-64 h-[calc(92vh)]">
         <a-col :lg="8">
           <a-card title="Register" :bordered="false">
             <a-form
-              :model="formState"
+              :model="registerForm"
               name="register"
-              @finish="handleSubmit"
+              @submit.prevent="handleSubmit"
               :rules="rules"
               layout="vertical"
             >
               <a-form-item name="name" label="Name">
-                <a-input v-model:value="formState.name" />
+                <a-input v-model:value="registerForm.name" />
               </a-form-item>
 
               <a-form-item name="email" label="Email">
-                <a-input v-model:value="formState.email" />
+                <a-input v-model:value="registerForm.email" />
               </a-form-item>
 
               <a-form-item name="password" label="Password">
-                <a-input-password v-model:value="formState.password" />
+                <a-input-password v-model:value="registerForm.password" />
               </a-form-item>
 
               <a-form-item name="confirmPassword" label="Confirm Password">
-                <a-input-password v-model:value="formState.confirmPassword" />
+                <a-input-password v-model:value="registerForm.confirmPassword" />
               </a-form-item>
 
               <a-form-item>
@@ -36,7 +36,7 @@
             <a-alert v-if="error" type="error" :message="error" show-icon banner />
           </a-card>
         </a-col>
-      </a-row>
+      </div>
     </a-layout-content>
   </a-layout>
 </template>
@@ -46,18 +46,13 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import Navbar from '@/components/Navbar.vue'
 import type { Rule } from 'ant-design-vue/es/form'
-
-interface FormState {
-  name: string
-  email: string
-  password: string
-  confirmPassword: string
-}
+import type { RegisterForm, RegisterRequest } from '@/types/auth.ts'
+import { register } from '@/services/auth.ts'
 
 const router = useRouter()
 const error = ref<string | null>(null)
 
-const formState = reactive<FormState>({
+const registerForm = reactive<RegisterForm>({
   name: '',
   email: '',
   password: '',
@@ -65,7 +60,7 @@ const formState = reactive<FormState>({
 })
 
 const validateConfirmPassword = async (_rule: Rule, value: string) => {
-  if (value !== formState.password) {
+  if (value !== registerForm.password) {
     throw new Error('The two passwords do not match!')
   }
 }
@@ -90,27 +85,18 @@ const rules = {
   ],
 }
 
-const handleSubmit = async (values: FormState) => {
+const handleSubmit = async () => {
   error.value = null
 
+  const payload: RegisterRequest = {
+    name: registerForm.name,
+    email: registerForm.email,
+    password: registerForm.password,
+  }
+
+  console.log(payload)
   try {
-    const response = await fetch('http://localhost:8080/api/auth/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name: values.name,
-        email: values.email,
-        password: values.password,
-      }),
-    })
-
-    const data = await response.json()
-
-    if (!response.ok) {
-      throw new Error(data.message || 'Registration failed')
-    }
+    register(payload)
 
     alert('Register success')
     router.push('/login')
@@ -119,10 +105,3 @@ const handleSubmit = async (values: FormState) => {
   }
 }
 </script>
-
-<style scoped>
-.container {
-  min-height: calc(100vh - 64px);
-  padding: 24px;
-}
-</style>

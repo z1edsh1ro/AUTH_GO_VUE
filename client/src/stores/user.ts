@@ -1,60 +1,24 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { useAuthStore } from './auth'
-
-export interface User {
-  id: string
-  name: string
-  email: number
-  password: string
-  created_at: string
-  updated_at: string
-}
+import type { User } from '../types/user'
+import { useAuthStore } from '@/stores/auth'
+import { fetchUsers } from '@/services/user'
 
 export const useUserStore = defineStore('user', () => {
   const users = ref<User[]>([])
-  const error = ref<string | null>(null)
-  const authStore = useAuthStore()
+  const useAuth = useAuthStore()
 
-  const fetchUsers = async () => {
-    error.value = null
-
+  const getUsers = async () => {
     try {
-      const token = authStore.getToken()
-      if (!token) {
-        throw new Error('No authentication token found')
-      }
-
-      const endPoint = `http://localhost:8080/api/auth/user/getAll`
-      const myHeaders = new Headers()
-      myHeaders.append('Authorization', `Bearer ${token}`)
-
-      const requestOptions = {
-        method: 'GET',
-        headers: myHeaders,
-      }
-
-      const response = await fetch(endPoint, requestOptions)
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          authStore.clearToken()
-          throw new Error('Unauthorized access')
-        }
-        throw new Error(`Cannot fetch user data`)
-      }
-
-      const responseJson = await response.json()
-      users.value = responseJson.data
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'An error occurred'
-      console.error('Failed to fetch users:', err)
+      const response = await fetchUsers(useAuth.jwt)
+      users.value = response
+    } catch (error) {
+      console.error('Failed to fetch users:', error)
     }
   }
 
   return {
     users,
-    error,
-    fetchUsers,
+    getUsers,
   }
 })

@@ -18,14 +18,6 @@
                 </template>
               </template>
             </a-table>
-
-            <a-alert
-              v-if="userStore.error"
-              type="error"
-              :message="userStore.error"
-              show-icon
-              banner
-            />
           </a-card>
         </a-col>
       </a-row>
@@ -39,12 +31,12 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import type { TableColumnsType } from 'ant-design-vue'
-import { useUserStore } from '@/stores/user'
-import { useAuthStore } from '@/stores/auth'
-import type { User } from '@/stores/user'
+import type { User } from '@/types/user'
 import UserDetailsModal from '@/components/UserDetailsModal.vue'
 import Navbar from '@/components/Navbar.vue'
 import EyeOutlined from '@ant-design/icons-vue/EyeOutlined'
+import { useUserStore } from '@/stores/user'
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -79,18 +71,11 @@ const showModal = (record: User) => {
   isModalVisible.value = true
 }
 
-onMounted(async () => {
-  if (!authStore.isAuthenticated) {
+onMounted(() => {
+  if (!authStore.loadJwt) {
     router.push('/login')
     return
   }
-  await userStore.fetchUsers()
+  userStore.getUsers()
 })
 </script>
-
-<style scoped>
-.ant-layout-content {
-  padding: 24px;
-  min-height: calc(100vh - 64px);
-}
-</style>

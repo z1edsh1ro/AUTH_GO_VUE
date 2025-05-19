@@ -1,20 +1,25 @@
 <template>
   <a-layout-header class="header">
-    <div class="logo" @click="goToHome">App</div>
+    <router-link to="/">
+      <div class="logo">App</div>
+    </router-link>
     <a-space>
-      <template v-if="authStore.isAuthenticated">
-        <a-button type="link" @click="goToUserPage">User Management</a-button>
+      <template v-if="authStore.loadJwt()">
+        <router-link to="/user">
+          <a-button>User Management</a-button>
+        </router-link>
         <a-dropdown>
           <a class="ant-dropdown-link" @click.prevent>
-            <a-avatar>{{ authStore.user?.name?.[0]?.toUpperCase() }}</a-avatar>
-            <span class="username">{{ authStore.user?.name }}</span>
+            <a-avatar>{{ authStore.jwtPayload?.name?.[0]?.toUpperCase() }}</a-avatar>
+            <span class="username">{{ authStore.jwtPayload?.name }}</span>
           </a>
           <template #overlay>
             <a-menu>
               <a-menu-item key="profile">
                 <div class="profile-info">
-                  <div class="name">{{ authStore.user?.name }}</div>
-                  <div class="email">{{ authStore.user?.email }}</div>
+                  <div class="name">{{ authStore.jwtPayload?.name }}</div>
+                  <div class="email">{{ authStore.jwtPayload?.email }}</div>
+                  <div class="time">{{ authStore.jwtPayload?.loginTime }}</div>
                 </div>
               </a-menu-item>
               <a-menu-divider />
@@ -27,8 +32,12 @@
         </a-dropdown>
       </template>
       <template v-else>
-        <a-button type="link" @click="goToLogin">Login</a-button>
-        <a-button type="link" @click="goToRegister">Register</a-button>
+        <router-link to="/login">
+          <a-button type="link">Login</a-button>
+        </router-link>
+        <router-link to="/register">
+          <a-button type="link">Register</a-button>
+        </router-link>
       </template>
     </a-space>
   </a-layout-header>
@@ -43,24 +52,8 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const handleLogout = () => {
-  authStore.clearToken()
+  authStore.clearJwt()
   router.push('/login')
-}
-
-const goToLogin = () => {
-  router.push('/login')
-}
-
-const goToRegister = () => {
-  router.push('/register')
-}
-
-const goToUserPage = () => {
-  router.push('/user')
-}
-
-const goToHome = () => {
-  router.push('/')
 }
 </script>
 
@@ -108,6 +101,11 @@ const goToHome = () => {
 
 .profile-info .email {
   font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.profile-info .time {
+  font-size: 10px;
   color: rgba(0, 0, 0, 0.45);
 }
 </style>

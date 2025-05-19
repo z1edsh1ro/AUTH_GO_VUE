@@ -1,47 +1,52 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { User } from './user'
+import { decodeJwt } from '@/utils/jwt'
+import type { JwtPayload } from './../types/jwtPayload '
+
+const JWT_KEY = 'jwt'
 
 export const useAuthStore = defineStore('auth', () => {
-  const token = ref<string | null>(localStorage.getItem('token'))
-  const storedUser = localStorage.getItem('user')
-  const user = ref<User | null>(storedUser ? JSON.parse(storedUser) : null)
+  const jwt = ref<string | null>(null)
+  const jwtPayload = ref<JwtPayload | null>(null)
+  const isAuthenticated = computed(() => loadJwt())
 
-  const isAuthenticated = computed(() => !!token.value && !!user.value)
-
-  const setToken = (newToken: string) => {
-    token.value = newToken
-    localStorage.setItem('token', newToken)
+  const setJwt = (newjwt: string): void => {
+    jwt.value = newjwt
+    localStorage.setItem(JWT_KEY, newjwt)
+    jwtPayload.value = decodeJwt(newjwt)
   }
 
-  const setUser = (userData: User) => {
-    user.value = userData
-    localStorage.setItem('user', JSON.stringify(userData))
+  const clearJwt = (): void => {
+    jwt.value = null
+    jwtPayload.value = null
+    localStorage.removeItem(JWT_KEY)
   }
 
-  const clearToken = () => {
-    token.value = null
-    user.value = null
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-  }
+  const loadJwt = (): boolean => {
+    const loadJwt = localStorage.getItem(JWT_KEY)
 
-  const getToken = () => {
-    return token.value
-  }
+    if (!loadJwt?.trim()) {
+      return false
+    }
 
-  const getUser = () => {
-    return user.value
+    const payload = decodeJwt(loadJwt)
+
+    if (!payload) {
+      return false
+    }
+
+    jwt.value = loadJwt
+    jwtPayload.value = payload
+
+    return true
   }
 
   return {
-    token,
-    user,
+    jwt,
+    jwtPayload,
     isAuthenticated,
-    setToken,
-    setUser,
-    clearToken,
-    getToken,
-    getUser,
+    loadJwt,
+    setJwt,
+    clearJwt,
   }
 })

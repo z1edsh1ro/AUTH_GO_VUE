@@ -2,27 +2,27 @@
   <a-layout>
     <Navbar />
     <a-layout-content>
-      <a-row justify="center" class="container">
+      <div class="flex justify-center mx-auto items-center px-64 h-[calc(92vh)]">
         <a-col :lg="8">
           <a-card title="Login">
             <a-form
-              :model="formState"
+              :model="loginForm"
               name="login"
-              @finish="handleSubmit"
+              @submit.prevent="handleSubmit"
               :rules="rules"
               layout="vertical"
             >
               <a-form-item name="email" label="Email">
                 <a-input
-                  :value="formState.email"
-                  @update:value="(val: string) => (formState.email = val)"
+                  :value="loginForm.email"
+                  @update:value="(val: string) => (loginForm.email = val)"
                 />
               </a-form-item>
 
               <a-form-item name="password" label="Password">
                 <a-input-password
-                  :value="formState.password"
-                  @update:value="(val: string) => (formState.password = val)"
+                  :value="loginForm.password"
+                  @update:value="(val: string) => (loginForm.password = val)"
                 />
               </a-form-item>
 
@@ -34,7 +34,7 @@
             <a-alert v-if="error" type="error" :message="error" show-icon banner />
           </a-card>
         </a-col>
-      </a-row>
+      </div>
     </a-layout-content>
   </a-layout>
 </template>
@@ -44,17 +44,14 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import Navbar from '@/components/Navbar.vue'
-
-interface FormState {
-  email: string
-  password: string
-}
+import { login } from '@/services/auth.ts'
+import type { LoginForm } from '@/types/auth.ts'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const error = ref<string | null>(null)
 
-const formState = reactive<FormState>({
+const loginForm = reactive<LoginForm>({
   email: '',
   password: '',
 })
@@ -71,28 +68,13 @@ const rules = {
   ],
 }
 
-const handleSubmit = async (values: FormState) => {
+const handleSubmit = async () => {
   error.value = null
 
   try {
-    const response = await fetch('http://localhost:8080/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(values),
-    })
+    const jwt = await login(loginForm)
 
-    const data = await response.json()
-
-    if (!response.ok) {
-      throw new Error(data.message || 'Login failed')
-    }
-
-    authStore.setToken(data.jwt)
-    if (data.data) {
-      authStore.setUser(data.data)
-    }
+    authStore.setJwt(jwt)
 
     router.push('/')
   } catch (err) {
@@ -100,10 +82,3 @@ const handleSubmit = async (values: FormState) => {
   }
 }
 </script>
-
-<style scoped>
-.container {
-  min-height: calc(100vh - 64px);
-  padding: 24px;
-}
-</style>

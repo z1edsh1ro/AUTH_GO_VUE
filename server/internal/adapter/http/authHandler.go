@@ -58,7 +58,7 @@ func (handler *AuthHandler) Login(context *gin.Context) {
 		return
 	}
 
-	UserResponseDTO, jwt, err := handler.Service.Login(user)
+	jwt, err := handler.Service.Login(user)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{
@@ -71,6 +71,5 @@ func (handler *AuthHandler) Login(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{
 		"status": "SUCCESS",
 		"jwt":    jwt,
-		"data":   UserResponseDTO,
 	})
 }

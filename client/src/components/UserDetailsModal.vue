@@ -5,7 +5,8 @@
         {{ user?.id }}
       </a-descriptions-item>
       <a-descriptions-item label="Name" :span="3">
-        {{ user?.name }}
+        <a-input label="Name" :value="user?.name"
+      />
       </a-descriptions-item>
       <a-descriptions-item label="Email" :span="3">
         {{ user?.email }}
@@ -24,7 +25,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { User } from '@/stores/user'
+import type { User } from '@/types/user'
 
 const { visible, user } = defineProps<{
   visible: boolean
