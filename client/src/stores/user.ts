@@ -17,8 +17,21 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
+  const updateUser = (updateUser: User | null) => {
+    if (!updateUser) {
+      return
+    }
+
+    const index = users.value.findIndex(user => user.id === updateUser.id)
+
+    if(index !== -1) {
+      users.value[index] = { ...updateUser }
+    }
+  }
+
   return {
     users,
     getUsers,
+    updateUser,
   }
 })

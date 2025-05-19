@@ -5,7 +5,7 @@
       <a-row>
         <a-col :span="24">
           <a-card>
-            <template #title>
+            <template>
               <a-space>
                 <span>User Management</span>
               </a-space>
@@ -22,26 +22,22 @@
         </a-col>
       </a-row>
 
-      <UserDetailsModal v-model:visible="isModalVisible" :user="selectedUser" />
+      <UserDetailsModal v-model:visible="isModalVisible" :user="selectedUser" @update="onUpdate" />
     </a-layout-content>
   </a-layout>
 </template>
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import type { TableColumnsType } from 'ant-design-vue'
 import type { User } from '@/types/user'
 import UserDetailsModal from '@/components/UserDetailsModal.vue'
 import Navbar from '@/components/Navbar.vue'
 import EyeOutlined from '@ant-design/icons-vue/EyeOutlined'
 import { useUserStore } from '@/stores/user'
-import { useAuthStore } from '@/stores/auth'
 
-const router = useRouter()
 const userStore = useUserStore()
-const authStore = useAuthStore()
-const isModalVisible = ref(false)
+const isModalVisible = ref<boolean>(false)
 const selectedUser = ref<User | null>(null)
 
 const columns = ref<TableColumnsType<User>>([
@@ -66,9 +62,14 @@ const columns = ref<TableColumnsType<User>>([
   },
 ])
 
-const showModal = (record: User) => {
+const showModal = (record: User):void => {
   selectedUser.value = record
   isModalVisible.value = true
+}
+
+const onUpdate = (user: User):void => {
+  userStore.updateUser(user)
+  isModalVisible.value = false
 }
 
 onMounted(() => {
